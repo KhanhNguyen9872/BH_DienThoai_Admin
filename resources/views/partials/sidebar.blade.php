@@ -52,7 +52,8 @@
       </li>
       <li class="nav-item">
         <a class="nav-link text-white @if(request()->routeIs('settings')) active @endif" href="{{ route('settings') }}">
-          <i class="bi-gear me-2"></i> Settings
+          <i class="bi-gear me-2"></i>
+          <span class="link-text">Settings</span>
         </a>
       </li>
     </ul>
