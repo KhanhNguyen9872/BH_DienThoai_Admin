@@ -9,7 +9,7 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        return view('profile-settings');
+        return view('settings.profile-settings');
     }
 
     public function updateProfile(Request $request)
@@ -38,7 +38,7 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()->back()->with('success', 'Profile updated successfully!');
+        return redirect()->back()->with('success', 'Thông tin cá nhân đã được cập nhật!');
     }
 
 }

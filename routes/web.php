@@ -25,19 +25,20 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', [DashboardController::class, 'home'])->name('dashboard');
-    Route::get('/products', [ProductController::class, 'products'])->name('products');
-    Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
-    Route::get('/users', [UserController::class, 'users'])->name('users');
-    Route::get('/accounts', [AccountController::class, 'accounts'])->name('accounts');
-    Route::get('/admins', [AdminController::class, 'admins'])->name('admins');
-    Route::get('/vouchers', [VoucherController::class, 'vouchers'])->name('vouchers');
-    Route::get('/analytics', [AnalyticsController::class, 'analytics'])->name('analytics');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/products', [ProductController::class, 'index'])->name('products');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+    Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts');
+    Route::get('/admins', [AdminController::class, 'index'])->name('admins');
+    Route::get('/vouchers', [VoucherController::class, 'index'])->name('vouchers');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::get('/settings', [SettingsController::class, 'settings'])->name('settings');
-    Route::get('/notifications', [NotificationController::class, 'notifications'])->name('notifications');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::get('/products/create', [ProductController::class, 'create']);
     Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
 
     Route::group(['prefix' => '/api'], function () {
         Route::get('/colors', [ColorController::class, 'getAllColors'])->name('colors');
@@ -48,5 +49,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{id}', [ProductController::class, 'delete'])->name('products.delete');
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+        Route::post('/orders', [OrderController::class, 'store']);
+        Route::delete('/orders/{id}', [OrderController::class, 'delete'])->name('orders.delete');
+        Route::post('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
     });
 });

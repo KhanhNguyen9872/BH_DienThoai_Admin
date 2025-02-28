@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller
 {
-    public function settings()
+    public function index()
     {
         // Define the keys for the settings.
         $keys = ['BOT_USERNAME', 'BOT_TOKEN', 'BOT_CHAT_ID', 'BOT_SEND_NOTIFICATION_AFTER_ORDER', 'MAINTENANCE', 'CHATBOT_ENABLE'];
@@ -18,7 +18,7 @@ class SettingsController extends Controller
                         ->pluck('value', 'key');
 
         // Pass the settings to the view.
-        return view('settings', ['settings' => $settings]);
+        return view('settings.index', ['settings' => $settings]);
     }
 
     public function updateSettings(Request $request)
@@ -60,7 +60,7 @@ class SettingsController extends Controller
             'value' => isset($validated['chatbot_enable']) && $validated['chatbot_enable'] ? 1 : 0,
         ]);
 
-        return redirect()->route('settings')->with('success', 'Settings updated successfully!');
+        return redirect()->route('settings')->with('success', 'Cài đặt đã được cập nhật!');
     }
 
 }

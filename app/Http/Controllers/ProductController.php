@@ -37,15 +37,19 @@ class ProductController extends Controller
         return response()->json(['products' => $products]);
     }
 
-    public function products()
+    public function index()
     {
         // Retrieve products from the 'product' table
-        $products = \DB::table('product')->get();
+        $products = \DB::table('product')
+            ->paginate(10);  // Paginate the query to show 10 products per page
 
         // Loop through each product to set default_img, price, and colors properties
         foreach ($products as $product) {
             // Decode the JSON stored in the "color" column
             $colors = json_decode($product->color, true);
+            $favorites = json_decode($product->favorite, true);
+
+            $product->favorites = $favorites;
 
             if (is_array($colors) && count($colors) > 0) {
                 // Use the "img" field of the first object as default_img
@@ -72,7 +76,7 @@ class ProductController extends Controller
         }
         
         // Pass the retrieved products to the view
-        return view('products', compact('products'));
+        return view('products.index', compact('products'));
     }
 
     /**
@@ -131,7 +135,7 @@ class ProductController extends Controller
                     copy($defaultImage, $destinationPath);
                     $colorData['img'] = '/img/' . $randomFileName;
                 } else {
-                    return response()->json(['error' => 'Default image not found']);
+                    return back()->with('error', 'Hình ảnh mặc định không tồn tại');
                 }
             }
         } else {
@@ -145,7 +149,7 @@ class ProductController extends Controller
             if (file_exists($destinationPath)) {
                 $colorData['img'] = '/img/' . $randomFileName;
             } else {
-                return response()->json(['error' => 'Failed to save file']);
+                return back()->with('error', 'Đã xảy ra lỗi khi lưu tệp');
             }
         }
 
@@ -158,7 +162,7 @@ class ProductController extends Controller
     $product->color = $colors;
     $product->save();
 
-    return redirect('/products')->with('success', 'Product updated successfully!');
+    return redirect()->route('products')->with('success', `Sản phẩm đã được cập nhật [ID: ${id}`);
 }
 
     public function create()
@@ -211,7 +215,7 @@ class ProductController extends Controller
                 $color['img'] = '/img/' . $randomFileName;  // Assign the new image URL
             } else {
                 // Handle the case where the default image does not exist
-                return response()->json(['error' => 'Default image not found']);
+                return back()->with('error', 'Hình ảnh mặc định không tồn tại');
             }
         } else {
             // Handle the uploaded image (if any)
@@ -232,7 +236,7 @@ class ProductController extends Controller
                 $color['img'] = '/img/' . $randomFileName;
             } else {
                 // Handle the case where the file wasn't moved successfully
-                return response()->json(['error' => 'Failed to save file']);
+                return back()->with('error', 'Đã xảy ra lỗi khi lưu tệp');
             }
         }
 
@@ -243,16 +247,16 @@ class ProductController extends Controller
     $product->color = $colors;
     $product->save();
 
-    return redirect('/products')->with('success', 'Product created successfully!');
+    return redirect()->route('products')->with('success', `Sản phẩm đã được tạo thành công!`);
 }
 
 public function delete($id)
-    {
-        // Find the product by ID
+{
+    // Try to find the product by ID
+    try {
         $product = Product::findOrFail($id);
-
+        
         // Optional: Handle related data (e.g., images or other relationships)
-        // If the product has an image or related files, you may want to delete those first.
         if ($product->color) {
             foreach ($product->color as $color) {
                 if (isset($color['img']) && Storage::exists(public_path('storage' . $color['img']))) {
@@ -266,6 +270,11 @@ public function delete($id)
         $product->delete();
 
         // Redirect to the products list with a success message
-        return response()->json(['message' => 'Product deleted!']);
+        return redirect()->route('products')->with('success', "Sản phẩm đã được xóa [ID: $id]");
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        // If the product is not found, show an error message
+        return redirect()->route('products')->with('error', "Không tìm thấy sản phẩm [ID: $id]");
     }
+}
+
 }

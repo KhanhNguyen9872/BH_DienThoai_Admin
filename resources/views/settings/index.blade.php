@@ -1,23 +1,31 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Settings')
+@section('title', 'Cài đặt')
 
 @section('content')
-  <h2>Settings</h2>
-  <p class="text-muted">Update your preferences here.</p>
+  <h2>Cài đặt</h2>
+  <p class="text-muted">Cập nhật các sở thích của bạn tại đây.</p>
   
   @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success">
+      {{ session('success') }}
+    </div>
   @endif
-  
+
+    <!-- Thông báo lỗi -->
+    @if(session('error'))
+    <div class="alert alert-danger">
+      {{ session('error') }}
+    </div>
+  @endif
   <form action="{{ route('settings.update') }}" method="POST">
     @csrf
     @method('PUT')
     
-    <!-- TELEGRAM BOT Feature -->
+    <!-- Tính năng TELEGRAM BOT -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-bold">TELEGRAM BOT | SEND NOTIFICATION AFTER ORDER</span>
+        <span class="fw-bold">TELEGRAM BOT | GỬI THÔNG BÁO SAU KHI ĐẶT HÀNG</span>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="telegramStatus" name="telegram_status"
                  @if(old('telegram_status', $settings['BOT_SEND_NOTIFICATION_AFTER_ORDER'] ?? false)) checked @endif>
@@ -26,27 +34,27 @@
       </div>
       <div class="card-body">
         <div class="mb-3">
-          <label for="telegramUsername" class="form-label">USERNAME</label>
+          <label for="telegramUsername" class="form-label">TÊN NGƯỜI DÙNG</label>
           <input type="text" class="form-control" id="telegramUsername" name="telegram_username"
-                 value="{{ old('telegram_username', $settings['BOT_USERNAME'] ?? '') }}" placeholder="Enter Telegram Username">
+                 value="{{ old('telegram_username', $settings['BOT_USERNAME'] ?? '') }}" placeholder="Nhập Tên người dùng Telegram">
         </div>
         <div class="mb-3">
-          <label for="telegramToken" class="form-label">TOKEN</label>
+          <label for="telegramToken" class="form-label">MÃ TOKEN</label>
           <input type="text" class="form-control" id="telegramToken" name="telegram_token"
-                 value="{{ old('telegram_token', $settings['BOT_TOKEN'] ?? '') }}" placeholder="Enter Telegram Token">
+                 value="{{ old('telegram_token', $settings['BOT_TOKEN'] ?? '') }}" placeholder="Nhập Mã Token Telegram">
         </div>
         <div class="mb-3">
           <label for="telegramChatId" class="form-label">CHAT_ID</label>
           <input type="text" class="form-control" id="telegramChatId" name="telegram_chat_id"
-                 value="{{ old('telegram_chat_id', $settings['BOT_CHAT_ID'] ?? '') }}" placeholder="Enter Telegram Chat ID">
+                 value="{{ old('telegram_chat_id', $settings['BOT_CHAT_ID'] ?? '') }}" placeholder="Nhập Telegram Chat ID">
         </div>
       </div>
     </div>
     
-    <!-- Web Client Feature (Maintenance Toggle) -->
+    <!-- Tính năng Web Client (Chuyển đổi bảo trì) -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-bold">WEB CLIENT | MAINTENANCE</span>
+        <span class="fw-bold">WEB CLIENT | CHẾ ĐỘ BẢO TRÌ</span>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="maintenanceStatus" name="maintenance"
                  @if(old('maintenance', $settings['MAINTENANCE'] ?? false)) checked @endif>
@@ -54,14 +62,14 @@
         </div>
       </div>
       <div class="card-body">
-        <p>Toggle to enable or disable maintenance mode for the web client.</p>
+        <p>Chuyển đổi để bật hoặc tắt chế độ bảo trì cho web client.</p>
       </div>
     </div>
 
-    <!-- Web Client Feature (Chatbot Enable) -->
+    <!-- Tính năng Web Client (Bật Chatbot) -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-bold">WEB CLIENT | CHATBOT ENABLE</span>
+        <span class="fw-bold">WEB CLIENT | BẬT CHATBOT</span>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="chatbotStatus" name="chatbot_enable"
                  @if(old('chatbot_enable', $settings['CHATBOT_ENABLE'] ?? false)) checked @endif>
@@ -69,18 +77,18 @@
         </div>
       </div>
       <div class="card-body">
-        <p>Enable or disable the chatbot functionality for the web client.</p>
+        <p>Bật hoặc tắt chức năng chatbot cho web client.</p>
       </div>
     </div>
 
-    <!-- Save Button -->
+    <!-- Nút Lưu -->
     <div class="d-grid">
-      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="submit" class="btn btn-primary">Lưu</button>
     </div>
     
   </form>
 @endsection
 
 @section('scripts')
-  <!-- You can add page-specific JavaScript here if needed -->
+  <!-- Bạn có thể thêm JavaScript riêng cho trang ở đây nếu cần -->
 @endsection

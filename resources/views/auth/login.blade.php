@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Login - PhoneStore</title>
+  <title>Đăng nhập Quản trị - PhoneStore</title>
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ asset('storage/css/bootstrap.min.css') }}" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="{{ asset('storage/css/bootstrap-icons.css') }}" rel="stylesheet" />
   <style>
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -31,9 +33,9 @@
 <body>
   <div class="container">
     <div class="login-card">
-      <h2 class="text-center mb-4">Admin Login</h2>
+      <h2 class="text-center mb-4">Đăng nhập Quản trị</h2>
       
-      <!-- Display error messages -->
+      <!-- Hiển thị thông báo lỗi -->
       @if($errors->any())
         <div class="alert alert-danger">
           {{ $errors->first() }}
@@ -43,25 +45,25 @@
       <form method="POST" action="{{ route('login') }}">
         @csrf
         <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required autofocus>
+          <label for="username" class="form-label">Tên người dùng</label>
+          <input type="text" class="form-control" id="username" name="username" placeholder="Nhập tên người dùng" required autofocus>
         </div>
         <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+          <label for="password" class="form-label">Mật khẩu</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Nhập mật khẩu" required>
         </div>
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary">Log In</button>
+          <button type="submit" class="btn btn-primary">Đăng nhập</button>
         </div>
       </form>
       
-      <div class="mt-3 text-center">
-        <a href="#">Forgot Password?</a>
-      </div>
+      <!-- <div class="mt-3 text-center">
+        <a href="#">Quên mật khẩu?</a>
+      </div> -->
     </div>
   </div>
   
   <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ asset('storage/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

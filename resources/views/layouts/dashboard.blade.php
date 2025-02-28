@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>@yield('title', 'Dashboard') - Phone Store Admin</title>
+  <title>@yield('title', 'Dashboard') - Phone Store</title>
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="{{ asset('storage/css/bootstrap.min.css') }}" rel="stylesheet" />
   <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="{{ asset('storage/css/bootstrap-icons.css') }}" rel="stylesheet" />
   <style>
     /* Use flex layout for container so main content expands when sidebar is minimized */
     #dashboardContainer {
@@ -56,23 +56,41 @@
     </main>
   </div>
   <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ asset('storage/js/axios.min.js') }}"></script>
+  <script src="{{ asset('storage/js/bootstrap.bundle.min.js') }}"></script>
   <script>
-    // Toggle sidebar minimal mode and automatically expand main content
-    document.getElementById('sidebarToggle').addEventListener('click', function() {
-      const sidebar = document.getElementById('sidebarMenu');
-      sidebar.classList.toggle('sidebar-minimized');
-      
-      // Toggle the chevron icon
-      const icon = this.querySelector('i');
-      if (sidebar.classList.contains('sidebar-minimized')) {
-        icon.classList.remove('bi-chevron-left');
-        icon.classList.add('bi-chevron-right');
-      } else {
-        icon.classList.remove('bi-chevron-right');
-        icon.classList.add('bi-chevron-left');
-      }
-    });
+    // Check if sidebar was minimized on page load
+    const sidebar = document.getElementById('sidebarMenu');
+    const icon = document.getElementById('sidebarToggle').querySelector('i');
+
+    if (sessionStorage.getItem('sidebarMinimized') === 'true') {
+      sidebar.classList.add('sidebar-minimized');
+      icon.classList.remove('bi-chevron-left');
+      icon.classList.add('bi-chevron-right');
+    } else {
+      sidebar.classList.remove('sidebar-minimized');
+      icon.classList.remove('bi-chevron-right');
+      icon.classList.add('bi-chevron-left');
+    }
+
+  // Toggle sidebar minimal mode and automatically expand main content
+  document.getElementById('sidebarToggle').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebarMenu');
+    sidebar.classList.toggle('sidebar-minimized');
+    
+    // Toggle the chevron icon
+    const icon = this.querySelector('i');
+    if (sidebar.classList.contains('sidebar-minimized')) {
+      icon.classList.remove('bi-chevron-left');
+      icon.classList.add('bi-chevron-right');
+      sessionStorage.setItem('sidebarMinimized', 'true');
+    } else {
+      icon.classList.remove('bi-chevron-right');
+      icon.classList.add('bi-chevron-left');
+      sessionStorage.setItem('sidebarMinimized', 'false');
+    }
+  });
+
   </script>
   @yield('scripts')
 </body>

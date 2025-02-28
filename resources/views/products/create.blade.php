@@ -1,47 +1,54 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Create New Product')
+@section('title', 'Tạo Sản phẩm Mới')
 
 @section('content')
-  <h1>Create New Product</h1>
+  <h1>Tạo Sản phẩm Mới</h1>
   @if(session('success'))
     <div class="alert alert-success">
       {{ session('success') }}
     </div>
   @endif
 
-  <!-- Scrollable container -->
+    <!-- Thông báo lỗi -->
+    @if(session('error'))
+    <div class="alert alert-danger">
+      {{ session('error') }}
+    </div>
+  @endif
+
+  <!-- Khung cuộn -->
   <div class="scroll-container" style="max-height: 92vh; overflow-y: auto; max-width: 165vh;">
     <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
-      <!-- Product Name -->
+      <!-- Tên sản phẩm -->
       <div class="mb-3">
-        <label for="product-name" class="form-label">Name</label>
+        <label for="product-name" class="form-label">Tên sản phẩm</label>
         <input type="text" id="product-name" name="name" class="form-control" value="{{ old('name') }}">
       </div>
-      <!-- Product Description -->
+      <!-- Mô tả sản phẩm -->
       <div class="mb-3">
-        <label for="product-description" class="form-label">Description</label>
+        <label for="product-description" class="form-label">Mô tả sản phẩm</label>
         <textarea id="product-description" name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
       </div>
-      <!-- Favorite (JSON) -->
+      <!-- Mục yêu thích (JSON) -->
       <div class="mb-3">
-        <label for="product-favorite" class="form-label">Favorite (JSON Array of User IDs)</label>
+        <label for="product-favorite" class="form-label">Yêu thích (Mảng JSON của ID người dùng)</label>
         <textarea id="product-favorite" name="favorite" class="form-control" rows="2">{{ old('favorite', '[]') }}</textarea>
       </div>
-      <!-- Color Variants -->
+      <!-- Các biến thể màu sắc -->
       <div class="mb-3">
-        <label class="form-label">Colors</label>
+        <label class="form-label">Màu sắc</label>
         <div class="row" id="colors-container">
-          <!-- New Colors will be added here -->
+          <!-- Các màu mới sẽ được thêm vào đây -->
         </div>
-        <!-- Add New Color Button -->
-        <button type="button" id="add-color-btn" class="btn btn-secondary mt-2">Add New Color</button>
+        <!-- Nút Thêm Màu Mới -->
+        <button type="button" id="add-color-btn" class="btn btn-secondary mt-2">Thêm Màu Mới</button>
       </div>
-      <!-- Save Button -->
-      <button type="submit" class="btn btn-primary">Save</button>
+      <!-- Nút Lưu -->
+      <button type="submit" class="btn btn-primary">Lưu</button>
     </form>
-  </div> <!-- End of scrollable container -->
+  </div> <!-- Kết thúc khung cuộn -->
 @endsection
 
 @section('scripts')
@@ -51,25 +58,25 @@
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          previewImage.src = e.target.result;  // Set the image preview to the selected file
+          previewImage.src = e.target.result;  // Hiển thị ảnh xem trước từ tệp đã chọn
         };
         reader.readAsDataURL(file);
       } else {
-        previewImage.src = "{{ asset('storage/images/default-phone.png') }}";  // Show default image if no file is selected
+        previewImage.src = "{{ asset('storage/images/default-phone.png') }}";  // Hiển thị ảnh mặc định nếu không chọn tệp
       }
     }
   document.addEventListener('DOMContentLoaded', function() {
-    let colorIndex = 0;  // Start from index 0 for new colors
+    let colorIndex = 0;  // Bắt đầu từ chỉ số 0 cho các màu mới
     const colorsContainer = document.getElementById('colors-container');
     const addColorBtn = document.getElementById('add-color-btn');
 
-    // Function to replace text input with select dropdown
+    // Hàm thay thế trường nhập liệu bằng dropdown chọn
     function populateColorsSelect(selectElement) {
-      // Fetch colors from the server using Axios
+      // Lấy các màu từ server sử dụng Axios
       axios.get('{{ route("colors") }}')
         .then(response => {
           const colors = response.data;
-          // Loop through colors and create option elements
+          // Lặp qua các màu và tạo phần tử option
           colors.forEach(color => {
             const option = document.createElement('option');
             option.value = color.name;
@@ -78,47 +85,51 @@
           });
         })
         .catch(error => {
-          console.error("Error fetching colors: ", error);
+          console.error("Lỗi khi lấy dữ liệu màu sắc: ", error);
         });
     }
     
-    // Function to handle the color addition
+    // Hàm xử lý thêm màu mới
     addColorBtn.addEventListener('click', function(e) {
       e.preventDefault();
+
+      if (colorIndex > 7) {
+        return;
+      }
       
       let newColorCard = `
         <div class="col-md-6 mb-3 color-card">
           <div class="card">
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="card-title mb-0">Color Variant #${colorIndex + 1}</h5>
-                <button type="button" class="btn btn-danger btn-sm remove-color-btn">Delete</button>
+                <h5 class="card-title mb-0">Biến thể Màu #${colorIndex + 1}</h5>
+                <button type="button" class="btn btn-danger btn-sm remove-color-btn">Xóa</button>
               </div>
               <div class="row">
                 <div class="col-md-4">
-                  <img id="preview-image-${colorIndex}" src="{{ asset('storage/images/default-phone.png') }}" alt="Color Image" class="img-fluid rounded mb-2" style="width: 225px; height: 225px; object-fit: cover;">
+                  <img id="preview-image-${colorIndex}" src="{{ asset('storage/images/default-phone.png') }}" alt="Hình ảnh màu" class="img-fluid rounded mb-2" style="width: 225px; height: 225px; object-fit: cover;">
                   <div class="mb-2">
-                    <label class="form-label">Change Image</label>
+                    <label class="form-label">Đổi hình ảnh</label>
                     <input type="file" name="color[${colorIndex}][img]" class="form-control" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, document.getElementById('preview-image-${colorIndex}'))">
                   </div>
                 </div>
                 <div class="col-md-8">
                   <div class="mb-2">
-                    <label class="form-label">Name</label>
+                    <label class="form-label">Tên</label>
                     <select name="color[${colorIndex}][name]" class="form-control" onchange="replaceColorInputWithSelect(${colorIndex})">
-                      <!-- The options will be populated dynamically with axios -->
+                      <!-- Các tùy chọn sẽ được điền động bằng axios -->
                     </select>
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">Money</label>
+                    <label class="form-label">Giá tiền</label>
                     <input type="number" name="color[${colorIndex}][money]" class="form-control" value="0">
                   </div>
                   <div class="mb-2">
-                    <label class="form-label">Quantity</label>
+                    <label class="form-label">Số lượng</label>
                     <input type="number" name="color[${colorIndex}][quantity]" class="form-control" value="0">
                   </div>
                   <div>
-                    <label class="form-label">Money Discount</label>
+                    <label class="form-label">Giảm giá tiền</label>
                     <input type="number" name="color[${colorIndex}][moneyDiscount]" class="form-control" value="0">
                   </div>
                 </div>
@@ -129,29 +140,29 @@
       `;
       colorsContainer.insertAdjacentHTML('beforeend', newColorCard);
       
-      // Get the new select element and populate it with colors
+      // Lấy phần tử select mới và điền màu sắc vào
       const selectElement = document.querySelector(`select[name="color[${colorIndex}][name]"]`);
       populateColorsSelect(selectElement);
 
       colorIndex++;
 
-      // Attach the delete button functionality again for the newly added color variant
+      // Gắn lại chức năng nút xóa cho các biến thể màu mới
       attachDeleteHandlers();
     });
 
-    // Handle delete button functionality
+    // Xử lý chức năng nút xóa
     function attachDeleteHandlers() {
       document.querySelectorAll('.remove-color-btn').forEach(function(btn) {
         btn.addEventListener('click', function(e) {
           e.preventDefault();
-          if (confirm("Are you sure you want to delete this color variant?")) {
+          if (confirm("Bạn chắc chắn muốn xóa biến thể màu này?")) {
             this.closest('.color-card').remove();
           }
         });
       });
     }
 
-    // Initially attach delete handlers to any existing delete buttons (if any)
+    // Gắn lại chức năng xóa cho bất kỳ nút xóa nào đã tồn tại
     attachDeleteHandlers();
   });
 </script>
