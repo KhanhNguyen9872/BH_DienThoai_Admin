@@ -66,7 +66,7 @@
 </nav>
 
 <!-- Include Axios -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="{{ asset('storage/js/axios.min.js') }}"></script>
 <script>
   const searchInput = document.getElementById('searchInput');
   const searchDropdown = document.getElementById('searchDropdown');
@@ -96,7 +96,7 @@
       if (products.length > 0) {
         html += '<ul class="list-group">';
         products.forEach(function(product) {
-          html += `<a href="/dashboard/products/${product.id}" class="list-group-item list-group-item-action d-flex align-items-center">
+          html += `<a href="/products/${product.id}" class="list-group-item list-group-item-action d-flex align-items-center">
             ${ product.default_img ? `<img src="/storage/${product.default_img}" alt="${product.name}" class="img-thumbnail me-2" style="width:40px; height:40px; object-fit: cover;">` : '' }
             <span>${product.name}</span>
           </a>`;

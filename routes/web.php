@@ -13,6 +13,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ColorController;
 
 Route::get('/', function () {
     return view('index');
@@ -22,11 +23,8 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
 Route::middleware('auth')->group(function () {
-    // Non-dashboard routes
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/search', [ProductController::class, 'search'])->name('search');
 
-    // Dashboard-related routes without the 'dashboard' prefix
     Route::get('/dashboard', [DashboardController::class, 'home'])->name('dashboard');
     Route::get('/products', [ProductController::class, 'products'])->name('products');
     Route::get('/orders', [OrderController::class, 'orders'])->name('orders');
@@ -36,10 +34,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/vouchers', [VoucherController::class, 'vouchers'])->name('vouchers');
     Route::get('/analytics', [AnalyticsController::class, 'analytics'])->name('analytics');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
-
-    // Settings and notifications routes without the 'dashboard' prefix
     Route::get('/settings', [SettingsController::class, 'settings'])->name('settings');
-    Route::put('/settings', [SettingsController::class, 'updateSettings'])->name('settings.update');
     Route::get('/notifications', [NotificationController::class, 'notifications'])->name('notifications');
+    Route::get('/products/create', [ProductController::class, 'create']);
+    Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+
+    Route::group(['prefix' => '/api'], function () {
+        Route::get('/colors', [ColorController::class, 'getAllColors'])->name('colors');
+        Route::get('/search', [ProductController::class, 'search'])->name('search');
+
+        Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/settings', [SettingsController::class, 'updateSettings'])->name('settings.update');
+        Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/products/{id}', [ProductController::class, 'delete'])->name('products.delete');
+    });
 });
