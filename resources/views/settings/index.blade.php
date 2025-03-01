@@ -6,7 +6,7 @@
   <!-- Container cuộn: full width, full height và cuộn dọc khi nội dung quá dài -->
   <div style="width: 100%; height: 94vh; overflow-y: auto; padding: 5px;">
     <h2>Cài đặt</h2>
-    <p class="text-muted">Cập nhật các sở thích của bạn tại đây.</p>
+    <p class="text-muted">Tùy chỉnh các cài đặt tại đây.</p>
     
     @if(session('success'))
       <div class="alert alert-success">
