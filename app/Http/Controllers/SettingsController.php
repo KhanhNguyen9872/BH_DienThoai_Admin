@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class SettingsController extends Controller
 {
@@ -117,5 +118,35 @@ class SettingsController extends Controller
 
     return redirect()->route('settings')->with('success', 'Cài đặt đã được cập nhật!');
 }
+
+public function checkConnection(Request $request)
+{
+    // Get the URL from the request body
+    $baseUrl = $request->input('url');
+    if (!$baseUrl) {
+        return response()->json(['success' => false, 'error' => 'URL parameter is required.'], 400);
+    }
+
+    // Append /v1/models if not already present
+    if (strpos($baseUrl, '/v1/models') === false) {
+        $baseUrl = rtrim($baseUrl, '/');
+        $url = $baseUrl . '/v1/models';
+    } else {
+        $url = $baseUrl;
+    }
+
+    try {
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json'
+        ])->timeout(5)->get($url);
+
+        // Decode the response body to JSON
+        $data = json_decode($response->body(), true);
+        return response()->json(['success' => true, 'data' => $data]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+}
+
 
 }

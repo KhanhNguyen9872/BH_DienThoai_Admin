@@ -4,7 +4,7 @@
 
 @section('content')
   <!-- Container cuộn: full width, full height và cuộn dọc khi nội dung quá dài -->
-  <div style="width: 100%; height: 94vh; overflow-y: auto; padding: 20px;">
+  <div style="width: 100%; height: 94vh; overflow-y: auto; padding: 5px;">
     <h2>Cài đặt</h2>
     <p class="text-muted">Cập nhật các sở thích của bạn tại đây.</p>
     
@@ -92,18 +92,27 @@
           </div>
         </div>
         <div class="card-body">
-          <p>Bật hoặc tắt chức năng chatbot cho web client.</p>
 
           <div class="mb-3">
             <label for="localChatbotURL" class="form-label">URL Chatbot cục bộ</label>
-            <input type="text" class="form-control" id="localChatbotURL" name="local_chatbot_url"
-                   value="{{ old('local_chatbot_url', $settings['LOCAL_CHATBOT_URL'] ?? '') }}" placeholder="Nhập URL Chatbot cục bộ">
+            <div class="input-group">
+              <input type="text" class="form-control" id="localChatbotURL" name="local_chatbot_url"
+                     value="{{ old('local_chatbot_url', $settings['LOCAL_CHATBOT_URL'] ?? '') }}" placeholder="Nhập URL Chatbot cục bộ">
+              <button type="button" class="btn btn-outline-secondary" id="btnConnect">Kết nối</button>
+              <!-- Span to display the connection status icon -->
+              <span class="input-group-text" id="connectStatus" style="display: none; background: transparent; border: none;"></span>
+            </div>
           </div>
-          
+
           <div class="mb-3">
             <label for="localChatbotModel" class="form-label">Tên mô hình Chatbot cục bộ</label>
-            <input type="text" class="form-control" id="localChatbotModel" name="local_chatbot_model"
-                   value="{{ old('local_chatbot_model', $settings['LOCAL_CHATBOT_MODEL'] ?? '') }}" placeholder="Nhập tên mô hình Chatbot cục bộ">
+            <div class="input-group">
+              <input type="text" class="form-control" id="localChatbotModel" name="local_chatbot_model"
+                     value="{{ old('local_chatbot_model', $settings['LOCAL_CHATBOT_MODEL'] ?? '') }}" placeholder="Nhập tên mô hình Chatbot cục bộ">
+              <!-- Dropdown toggle button for model selection -->
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle" id="btnSelectModel" data-bs-toggle="dropdown" aria-expanded="false">Chọn model</button>
+              <ul class="dropdown-menu" id="modelDropdown"></ul>
+            </div>
           </div>
 
           <div class="mb-3">
@@ -130,5 +139,71 @@
 @endsection
 
 @section('scripts')
-  <!-- Bạn có thể thêm JavaScript riêng cho trang ở đây nếu cần -->
+  <script>
+    // Global variable to hold the fetched models
+    let modelsData = [];
+
+    document.getElementById('btnConnect').addEventListener('click', async function() {
+      const urlInput = document.getElementById('localChatbotURL');
+      const connectStatus = document.getElementById('connectStatus');
+      const url = urlInput.value.trim();
+      
+      // Clear previously fetched models and dropdown items
+      modelsData = [];
+      document.getElementById('modelDropdown').innerHTML = '';
+
+      if (!url) {
+        connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        connectStatus.style.display = 'flex';
+        return;
+      }
+      
+      try {
+        // Call the proxy endpoint with the URL in the request body.
+        const response = await axios.post('/api/get-models', { url: url }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.data.success) {
+          connectStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+          // Extract models from the response
+          // Response structure: { success: true, data: { data: [ ... ], object: "list" } }
+          let allModels = [];
+          if (response.data.data && response.data.data.data) {
+            allModels = response.data.data.data;
+          }
+          // Filter only items where object === 'model'
+          modelsData = allModels.filter(item => item.object === 'model');
+          
+          // Populate the dropdown menu with model IDs
+          const modelDropdown = document.getElementById('modelDropdown');
+          modelDropdown.innerHTML = '';
+          modelsData.forEach(model => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.className = 'dropdown-item';
+            a.href = '#';
+            a.textContent = model.id;
+            a.addEventListener('click', function(e) {
+              e.preventDefault();
+              // Set the input field to the selected model's id
+              document.getElementById('localChatbotModel').value = model.id;
+            });
+            li.appendChild(a);
+            modelDropdown.appendChild(li);
+          });
+          
+        } else {
+          connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        }
+        connectStatus.style.display = 'flex';
+      } catch (error) {
+        connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        connectStatus.style.display = 'flex';
+        console.error('Error:', error);
+      }
+    });
+  </script>
 @endsection
