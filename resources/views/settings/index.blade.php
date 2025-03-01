@@ -99,8 +99,10 @@
               <input type="text" class="form-control" id="localChatbotURL" name="local_chatbot_url"
                      value="{{ old('local_chatbot_url', $settings['LOCAL_CHATBOT_URL'] ?? '') }}" placeholder="Nhập URL Chatbot cục bộ">
               <button type="button" class="btn btn-outline-secondary" id="btnConnect">Kết nối</button>
-              <!-- Span to display the connection status icon -->
-              <span class="input-group-text" id="connectStatus" style="display: none; background: transparent; border: none;"></span>
+              <!-- Display default "not tested" icon -->
+              <span class="input-group-text" id="connectStatus" style="background: transparent; border: none;">
+                <i class="bi bi-question-circle-fill text-secondary"></i>
+              </span>
             </div>
           </div>
 
@@ -127,8 +129,10 @@
               <input type="text" class="form-control" id="geminiApiKey" name="gemini_api_key"
                      value="{{ old('gemini_api_key', $settings['GEMINI_API_KEY'] ?? '') }}" placeholder="Nhập Gemini API Key">
               <button type="button" class="btn btn-outline-secondary" id="btnTestAPI">Test API</button>
-              <!-- Span to display the test API status icon -->
-              <span class="input-group-text" id="testAPIStatus" style="display: none; background: transparent; border: none;"></span>
+              <!-- Display default "not tested" icon -->
+              <span class="input-group-text" id="testAPIStatus" style="background: transparent; border: none;">
+                <i class="bi bi-question-circle-fill text-secondary"></i>
+              </span>
             </div>
           </div>
         </div>
@@ -144,7 +148,6 @@
 @endsection
 
 @section('scripts')
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     // Global variable to hold the fetched models
     let modelsData = [];
@@ -161,7 +164,6 @@
 
       if (!url) {
         connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
-        connectStatus.style.display = 'flex';
         return;
       }
       
@@ -175,39 +177,31 @@
         
         if (response.data.success) {
           connectStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
-          // Extract models from the response
-          let allModels = [];
-          if (response.data.data && response.data.data.data) {
-            allModels = response.data.data.data;
-          }
-          // Filter only items where object === 'model'
-          modelsData = allModels.filter(item => item.object === 'model');
+          // Now response.data.data is an array of model IDs.
+          modelsData = response.data.data;
           
           // Populate the dropdown menu with model IDs
           const modelDropdown = document.getElementById('modelDropdown');
           modelDropdown.innerHTML = '';
-          modelsData.forEach(model => {
+          modelsData.forEach(modelId => {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.className = 'dropdown-item';
             a.href = '#';
-            a.textContent = model.id;
+            a.textContent = modelId;
             a.addEventListener('click', function(e) {
               e.preventDefault();
               // Set the input field to the selected model's id
-              document.getElementById('localChatbotModel').value = model.id;
+              document.getElementById('localChatbotModel').value = modelId;
             });
             li.appendChild(a);
             modelDropdown.appendChild(li);
           });
-          
         } else {
           connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
         }
-        connectStatus.style.display = 'flex';
       } catch (error) {
         connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
-        connectStatus.style.display = 'flex';
         console.error('Error:', error);
       }
     });
@@ -221,7 +215,6 @@
       
       if (!apiKey) {
         testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
-        testAPIStatus.style.display = 'flex';
         return;
       }
       
@@ -237,10 +230,8 @@
         } else {
           testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
         }
-        testAPIStatus.style.display = 'flex';
       } catch (error) {
         testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
-        testAPIStatus.style.display = 'flex';
         console.error('Gemini API test error:', error);
       }
     });

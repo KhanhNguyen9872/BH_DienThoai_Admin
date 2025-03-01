@@ -142,11 +142,23 @@ public function getModels(Request $request)
 
         // Decode the response body to JSON
         $data = json_decode($response->body(), true);
-        return response()->json(['success' => true, 'data' => $data]);
+
+        // Extract only the model ids from the response
+        $models = [];
+        if (isset($data['data']) && is_array($data['data'])) {
+            foreach ($data['data'] as $item) {
+                if (isset($item['object']) && $item['object'] === 'model' && isset($item['id'])) {
+                    $models[] = $item['id'];
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'data' => $models]);
     } catch (\Exception $e) {
         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 }
+
 
 public function testAPIGemini(Request $request)
     {
