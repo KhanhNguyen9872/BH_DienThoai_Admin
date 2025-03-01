@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderInfo;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -76,4 +77,44 @@ class OrderController extends Controller
         return redirect()->route('orders.show', $id)->with('error', 'Đơn hàng không tồn tại hoặc đã xác nhận từ trước!');
     }
 
+
+    public function cancel($id)
+{
+    // Retrieve the order along with its orderInfo and products (adjust relations as needed)
+    $order = Order::with('orderInfo')->findOrFail($id);
+
+    // Check if order status is 'Đang giao hàng' or 'Đã giao hàng'; if so, do not allow cancellation.
+    if (in_array($order->orderInfo->status, ['Đang giao hàng', 'Đã giao hàng'])) {
+        return redirect()->route('orders')->with('error', 'Không thể hủy đơn hàng khi đang giao hàng hoặc đã giao hàng.');
+    }
+
+    // Change order status to 'Đã hủy'
+    $order->orderInfo->status = 'Đã hủy';
+    $order->orderInfo->save();
+
+    // Increase product quantities for each product in the order.
+    // Assuming $order->orderInfo->products is an array of product details.
+    foreach ($order->orderInfo->products as $productDetail) {
+        // Retrieve the product from the database
+        $product = Product::find($productDetail['id']);
+        if ($product) {
+            // Assuming $product->color is stored as JSON and cast to array in the model.
+            $colors = $product->color; 
+            // Update the corresponding color variant by increasing its quantity.
+            $updatedColors = array_map(function($color) use ($productDetail) {
+                // Compare the color name with the one in the product order details.
+                if ($color['name'] === $productDetail['color']) {
+                    $color['quantity'] = $color['quantity'] + $productDetail['quantity'];
+                }
+                return $color;
+            }, $colors);
+
+            // Save the updated color array back to the product.
+            $product->color = $updatedColors;
+            $product->save();
+        }
+    }
+
+    return redirect()->route('orders')->with('success', 'Đơn hàng đã được hủy và số lượng sản phẩm đã được cập nhật.');
+}
 }

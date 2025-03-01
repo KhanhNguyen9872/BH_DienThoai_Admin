@@ -10,8 +10,8 @@
     </div>
   @endif
 
-    <!-- Thông báo lỗi -->
-    @if(session('error'))
+  <!-- Thông báo lỗi -->
+  @if(session('error'))
     <div class="alert alert-danger">
       {{ session('error') }}
     </div>
@@ -19,6 +19,12 @@
 
   <!-- Khung cuộn -->
   <div class="scroll-container" style="max-height: 92vh; overflow-y: auto; max-width: 165vh;">
+    @php
+      // Retrieve the selected favorites from the old input.
+      $selectedFavorites = old('favorite', '[]');
+      $selectedFavorites = is_array($selectedFavorites) ? $selectedFavorites : json_decode($selectedFavorites, true) ?? [];
+    @endphp
+
     <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
       @csrf
       <!-- Tên sản phẩm -->
@@ -31,10 +37,16 @@
         <label for="product-description" class="form-label">Mô tả sản phẩm</label>
         <textarea id="product-description" name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
       </div>
-      <!-- Mục yêu thích (JSON) -->
+      <!-- Yêu thích (Mảng JSON của ID người dùng) -->
       <div class="mb-3">
-        <label for="product-favorite" class="form-label">Yêu thích (Mảng JSON của ID người dùng)</label>
-        <textarea id="product-favorite" name="favorite" class="form-control" rows="2">{{ old('favorite', '[]') }}</textarea>
+        <label for="product-favorite" class="form-label">Yêu thích</label>
+        <select class="form-control" id="product-favorite" name="favorite[]" multiple>
+          @foreach ($users as $user)
+            <option value="{{ $user->id }}" {{ in_array($user->id, $selectedFavorites) ? 'selected' : '' }}>
+              ID: {{ $user->id }} - {{ $user->email }}
+            </option>
+          @endforeach
+        </select>
       </div>
       <!-- Các biến thể màu sắc -->
       <div class="mb-3">
@@ -52,8 +64,18 @@
 @endsection
 
 @section('scripts')
-<script>
-  function handleImagePreview(input, previewImage) {
+  <script>
+    $(document).ready(function() {
+      $('#product-favorite').select2({
+        placeholder: "Chọn người dùng yêu thích",
+        allowClear: true,
+        width: '100%'
+      });
+    });
+  </script>
+
+  <script>
+    function handleImagePreview(input, previewImage) {
       const file = input.files[0];
       if (file) {
         const reader = new FileReader();
@@ -65,105 +87,107 @@
         previewImage.src = "{{ asset('storage/images/default-phone.png') }}";  // Hiển thị ảnh mặc định nếu không chọn tệp
       }
     }
-  document.addEventListener('DOMContentLoaded', function() {
-    let colorIndex = 0;  // Bắt đầu từ chỉ số 0 cho các màu mới
-    const colorsContainer = document.getElementById('colors-container');
-    const addColorBtn = document.getElementById('add-color-btn');
-
-    // Hàm thay thế trường nhập liệu bằng dropdown chọn
-    function populateColorsSelect(selectElement) {
-      // Lấy các màu từ server sử dụng Axios
-      axios.get('{{ route("colors") }}')
-        .then(response => {
-          const colors = response.data;
-          // Lặp qua các màu và tạo phần tử option
-          colors.forEach(color => {
-            const option = document.createElement('option');
-            option.value = color.name;
-            option.textContent = color.name;
-            selectElement.appendChild(option);
-          });
-        })
-        .catch(error => {
-          console.error("Lỗi khi lấy dữ liệu màu sắc: ", error);
-        });
-    }
     
-    // Hàm xử lý thêm màu mới
-    addColorBtn.addEventListener('click', function(e) {
-      e.preventDefault();
+    document.addEventListener('DOMContentLoaded', function() {
+      let colorIndex = 0;  // Bắt đầu từ chỉ số 0 cho các màu mới
+      const colorsContainer = document.getElementById('colors-container');
+      const addColorBtn = document.getElementById('add-color-btn');
 
-      if (colorIndex > 7) {
-        return;
+      // Hàm thay thế trường nhập liệu bằng dropdown chọn
+      function populateColorsSelect(selectElement) {
+        // Lấy các màu từ server sử dụng Axios
+        axios.get('{{ route("colors") }}')
+          .then(response => {
+            const colors = response.data;
+            // Lặp qua các màu và tạo phần tử option
+            colors.forEach(color => {
+              const option = document.createElement('option');
+              option.value = color.name;
+              option.textContent = color.name;
+              selectElement.appendChild(option);
+            });
+          })
+          .catch(error => {
+            console.error("Lỗi khi lấy dữ liệu màu sắc: ", error);
+          });
       }
       
-      let newColorCard = `
-        <div class="col-md-6 mb-3 color-card">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h5 class="card-title mb-0">Biến thể Màu #${colorIndex + 1}</h5>
-                <button type="button" class="btn btn-danger btn-sm remove-color-btn">Xóa</button>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <img id="preview-image-${colorIndex}" src="{{ asset('storage/images/default-phone.png') }}" alt="Hình ảnh màu" class="img-fluid rounded mb-2" style="width: 225px; height: 225px; object-fit: cover;">
-                  <div class="mb-2">
-                    <label class="form-label">Đổi hình ảnh</label>
-                    <input type="file" name="color[${colorIndex}][img]" class="form-control" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, document.getElementById('preview-image-${colorIndex}'))">
-                  </div>
+      // Hàm xử lý thêm màu mới
+      addColorBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        if (colorIndex > 7) {
+          return;
+        }
+        
+        let newColorCard = `
+          <div class="col-md-6 mb-3 color-card">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h5 class="card-title mb-0">Biến thể Màu #${colorIndex + 1}</h5>
+                  <button type="button" class="btn btn-danger btn-sm remove-color-btn">Xóa</button>
                 </div>
-                <div class="col-md-8">
-                  <div class="mb-2">
-                    <label class="form-label">Tên</label>
-                    <select name="color[${colorIndex}][name]" class="form-control" onchange="replaceColorInputWithSelect(${colorIndex})">
-                      <!-- Các tùy chọn sẽ được điền động bằng axios -->
-                    </select>
+                <div class="row">
+                  <div class="col-md-4">
+                    <img id="preview-image-${colorIndex}" src="{{ asset('storage/images/default-phone.png') }}" alt="Hình ảnh màu" class="img-fluid rounded mb-2" style="width: 225px; height: 225px; object-fit: cover;">
+                    <div class="mb-2">
+                      <label class="form-label">Đổi hình ảnh</label>
+                      <input type="file" name="color[${colorIndex}][img]" class="form-control" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, document.getElementById('preview-image-${colorIndex}'))">
+                      <input type="hidden" name="color[${colorIndex}][existing_img]" value="{{ $color['img'] ?? '' }}">
+                      </div>
                   </div>
-                  <div class="mb-2">
-                    <label class="form-label">Giá tiền</label>
-                    <input type="number" name="color[${colorIndex}][money]" class="form-control" value="0">
-                  </div>
-                  <div class="mb-2">
-                    <label class="form-label">Số lượng</label>
-                    <input type="number" name="color[${colorIndex}][quantity]" class="form-control" value="0">
-                  </div>
-                  <div>
-                    <label class="form-label">Giảm giá tiền</label>
-                    <input type="number" name="color[${colorIndex}][moneyDiscount]" class="form-control" value="0">
+                  <div class="col-md-8">
+                    <div class="mb-2">
+                      <label class="form-label">Tên</label>
+                      <select name="color[${colorIndex}][name]" class="form-control">
+                        <!-- Các tùy chọn sẽ được điền động bằng axios -->
+                      </select>
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Giá tiền</label>
+                      <input type="number" name="color[${colorIndex}][money]" class="form-control" value="0">
+                    </div>
+                    <div class="mb-2">
+                      <label class="form-label">Số lượng</label>
+                      <input type="number" name="color[${colorIndex}][quantity]" class="form-control" value="0">
+                    </div>
+                    <div>
+                      <label class="form-label">Giảm giá tiền</label>
+                      <input type="number" name="color[${colorIndex}][moneyDiscount]" class="form-control" value="0">
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      `;
-      colorsContainer.insertAdjacentHTML('beforeend', newColorCard);
-      
-      // Lấy phần tử select mới và điền màu sắc vào
-      const selectElement = document.querySelector(`select[name="color[${colorIndex}][name]"]`);
-      populateColorsSelect(selectElement);
+        `;
+        colorsContainer.insertAdjacentHTML('beforeend', newColorCard);
+        
+        // Lấy phần tử select mới và điền màu sắc vào
+        const selectElement = document.querySelector(`select[name="color[${colorIndex}][name]"]`);
+        populateColorsSelect(selectElement);
 
-      colorIndex++;
+        colorIndex++;
 
-      // Gắn lại chức năng nút xóa cho các biến thể màu mới
+        // Gắn lại chức năng nút xóa cho các biến thể màu mới
+        attachDeleteHandlers();
+      });
+
+      // Xử lý chức năng nút xóa
+      function attachDeleteHandlers() {
+        document.querySelectorAll('.remove-color-btn').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm("Bạn chắc chắn muốn xóa biến thể màu này?")) {
+              this.closest('.color-card').remove();
+            }
+          });
+        });
+      }
+
+      // Gắn lại chức năng xóa cho bất kỳ nút xóa nào đã tồn tại
       attachDeleteHandlers();
     });
-
-    // Xử lý chức năng nút xóa
-    function attachDeleteHandlers() {
-      document.querySelectorAll('.remove-color-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-          e.preventDefault();
-          if (confirm("Bạn chắc chắn muốn xóa biến thể màu này?")) {
-            this.closest('.color-card').remove();
-          }
-        });
-      });
-    }
-
-    // Gắn lại chức năng xóa cho bất kỳ nút xóa nào đã tồn tại
-    attachDeleteHandlers();
-  });
-</script>
+  </script>
 @endsection

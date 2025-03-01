@@ -39,8 +39,14 @@
       </div>
       <!-- Mục yêu thích (JSON) -->
       <div class="mb-3">
-        <label for="product-favorite" class="form-label">Yêu thích (Mảng JSON của ID người dùng)</label>
-        <textarea id="product-favorite" name="favorite" class="form-control" rows="2">{{ old('favorite', json_encode($product->favorite)) }}</textarea>
+        <label for="product-favorite" class="form-label">Yêu thích</label>
+        <select class="form-control" id="product-favorite" name="favorite[]" multiple>
+          @foreach ($users as $user)
+            <option value="{{ $user->id }}" {{ in_array($user->id, $selectedFavorites) ? 'selected' : '' }}>
+              ID: {{ $user->id }} - {{ $user->email }}
+            </option>
+          @endforeach
+        </select>
       </div>
       <!-- Các biến thể màu sắc -->
       <div class="mb-3">
@@ -102,6 +108,15 @@
 @endsection
 
 @section('scripts')
+<script>
+    $(document).ready(function() {
+      $('#product-favorite').select2({
+        placeholder: "Chọn người dùng yêu thích",
+        allowClear: true,
+        width: '100%'
+      });
+    });
+  </script>
 <script>
     function handleImagePreview(input, previewImage) {
       const file = input.files[0];
@@ -172,7 +187,7 @@
                   <div class="mb-2">
                     <label class="form-label">Đổi Hình ảnh</label>
                     <input type="file" name="color[${colorIndex}][img]" class="form-control" accept=".jpg,.jpeg,.png,.webp" onchange="handleImagePreview(this, document.getElementById('preview-image-${colorIndex}'))">
-                    <input type="hidden" name="color[${colorIndex}][existing_img]" value="{{ $color['img'] }}">
+                    <input type="hidden" name="color[${colorIndex}][existing_img]" value="{{ $color['img'] ?? '' }}">
                     </div>
                 </div>
                 <div class="col-md-8">

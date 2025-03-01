@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage; // Import Storage facade
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product; // Make sure this line is present
+use App\Models\UserInfo; // Make sure this line is present
 
 class ProductController extends Controller
 {
@@ -89,8 +90,13 @@ class ProductController extends Controller
     {
         // Load the product record. The 'favorite' and 'color' fields will automatically be cast to arrays.
         $product = Product::findOrFail($id);
+
+        $selectedFavorites = old('favorite', is_array($product->favorite) ? $product->favorite : json_decode($product->favorite, true) ?? []);
+
+        // Retrieve all users from the UserInfo model (adjust this if your model name is different)
+        $users = UserInfo::all();
         
-        return view('products.show', compact('product'));
+        return view('products.show', compact('product', 'users', 'selectedFavorites'));
     }
 
     public function update(Request $request, $id)
@@ -98,19 +104,32 @@ class ProductController extends Controller
     $product = Product::findOrFail($id);
 
     $validatedData = $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'favorite' => 'nullable|json',
-        'color.*.name' => 'required|string',
-        'color.*.money' => 'required|numeric',
+        'name'             => 'required|string|max:255',
+        'description'      => 'nullable|string',
+        'favorite'         => 'nullable|array', // Changed from json to array
+        'color.*.name'     => 'required|string',
+        'color.*.money'    => 'required|numeric',
         'color.*.quantity' => 'required|numeric',
         'color.*.moneyDiscount' => 'nullable|numeric',
-        'color.*.img' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+        'color.*.img'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
     ]);
 
     $product->name = $validatedData['name'];
-    $product->description = $validatedData['description'];
-    $product->favorite = json_decode($validatedData['favorite'], true) ?? [];
+    $product->description = $validatedData['description'] ?? null;
+    // Since favorite now comes as an array from the Select2 multiple select,
+    // assign it directly (default to an empty array if null)
+
+    // Retrieve arrays or default to an empty array
+    $fvr = $validatedData['favorite'] ?? [];
+
+    // Try to parse each element as integer. If parsing fails, keep the original value.
+    $parsedfvr = array_map(function($item) {
+        $parsed = filter_var($item, FILTER_VALIDATE_INT);
+        return ($parsed === false) ? $item : $parsed;
+    }, $fvr);
+
+    // Convert discount from percentage to decimal
+    $product->favorite = $parsedfvr;
 
     $colors = [];
 
@@ -120,7 +139,7 @@ class ProductController extends Controller
             unset($colorData['moneyDiscount']);
         }
 
-        // Handle image
+        // Handle image upload or fallback to existing/default image
         if (!$request->hasFile("color.{$index}.img")) {
             // Use existing image if available
             if (isset($colorData['existing_img'])) {
@@ -162,38 +181,47 @@ class ProductController extends Controller
     $product->color = $colors;
     $product->save();
 
-    return redirect()->route('products')->with('success', `Sản phẩm đã được cập nhật [ID: ${id}`);
+    return redirect()->route('products')->with('success', "Sản phẩm đã được cập nhật [ID: {$id}]");
 }
+
 
     public function create()
     {
-        return view('products.create');  // Or your view file for creating products
+        // Retrieve all users from the UserInfo model (adjust this if your model name is different)
+        $users = UserInfo::all();
+
+        return view('products.create', compact('users'));  // Or your view file for creating products
     }
 
     public function store(Request $request)
 {
     // Validate the incoming request data
     $validatedData = $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'favorite' => 'nullable|json',
-        'color.*.name' => 'required|string',
-        'color.*.money' => 'required|numeric',
-        'color.*.quantity' => 'required|numeric',
+        'name'              => 'required|string|max:255',
+        'description'       => 'nullable|string',
+        'favorite'          => 'nullable|array', // Changed from json to array
+        'color.*.name'      => 'required|string',
+        'color.*.money'     => 'required|numeric',
+        'color.*.quantity'  => 'required|numeric',
         'color.*.moneyDiscount' => 'nullable|numeric',
-        'color.*.img' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096', // Image validation
+        'color.*.img'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
     ]);
 
     // Store the product details
     $product = new Product();
     $product->name = $validatedData['name'];
     $product->description = $validatedData['description'];
+    // Retrieve arrays or default to an empty array
+    $fvr = $validatedData['favorite'] ?? [];
 
-    if (!$product->favorite) {
-        $product->favorite = '[]';
-    }
+    // Try to parse each element as integer. If parsing fails, keep the original value.
+    $parsedfvr = array_map(function($item) {
+        $parsed = filter_var($item, FILTER_VALIDATE_INT);
+        return ($parsed === false) ? $item : $parsed;
+    }, $fvr);
 
-    $product->favorite = json_decode($validatedData['favorite'], true) ?? [];
+    // Convert discount from percentage to decimal
+    $product->favorite = $parsedfvr;
 
     // Process the colors and images
     $colors = [];
@@ -211,44 +239,35 @@ class ProductController extends Controller
 
             // Move the default image to the img folder with a random name
             if (file_exists($defaultImage)) {
-                copy($defaultImage, $destinationPath);  // Copy the default image
-                $color['img'] = '/img/' . $randomFileName;  // Assign the new image URL
+                copy($defaultImage, $destinationPath);
+                $color['img'] = '/img/' . $randomFileName;
             } else {
-                // Handle the case where the default image does not exist
                 return back()->with('error', 'Hình ảnh mặc định không tồn tại');
             }
         } else {
-            // Handle the uploaded image (if any)
+            // Handle the uploaded image
             $image = $request->file("color.{$index}.img");
-
-            // Generate a random file name
             $randomFileName = Str::random(40) . '.' . $image->getClientOriginalExtension();
-
-            // Define the destination path for the file in public/img
             $destinationPath = public_path('storage/img/' . $randomFileName);
 
-            // Move the uploaded file manually to the destination
             $image->move(public_path('storage/img'), $randomFileName);
-
-            // Check if the file was successfully moved
+            
             if (file_exists($destinationPath)) {
-                // Store the relative URL in the color array
                 $color['img'] = '/img/' . $randomFileName;
             } else {
-                // Handle the case where the file wasn't moved successfully
                 return back()->with('error', 'Đã xảy ra lỗi khi lưu tệp');
             }
         }
 
-        // Push the updated color to the colors array
         $colors[] = $color;
     }
 
     $product->color = $colors;
     $product->save();
 
-    return redirect()->route('products')->with('success', `Sản phẩm đã được tạo thành công!`);
+    return redirect()->route('products')->with('success', 'Sản phẩm đã được tạo thành công!');
 }
+
 
 public function delete($id)
 {

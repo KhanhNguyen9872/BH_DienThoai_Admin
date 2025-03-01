@@ -6,8 +6,13 @@
   <title>@yield('title', 'Dashboard') - Phone Store</title>
   <!-- Bootstrap CSS -->
   <link href="{{ asset('storage/css/bootstrap.min.css') }}" rel="stylesheet" />
-  <!-- Bootstrap Icons -->
   <link href="{{ asset('storage/css/bootstrap-icons.css') }}" rel="stylesheet" />
+  <link href="{{ asset('storage/css/select2.min.css') }}" rel="stylesheet" />
+  <script src="{{ asset('storage/js/jquery.min.js') }}"></script>
+  <script src="{{ asset('storage/js/axios.min.js') }}"></script>
+  <script src="{{ asset('storage/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('storage/js/select2.min.js') }}"></script>
+
   <style>
     /* Use flex layout for container so main content expands when sidebar is minimized */
     #dashboardContainer {
@@ -56,8 +61,6 @@
     </main>
   </div>
   <!-- Bootstrap Bundle JS -->
-  <script src="{{ asset('storage/js/axios.min.js') }}"></script>
-  <script src="{{ asset('storage/js/bootstrap.bundle.min.js') }}"></script>
   <script>
     // Check if sidebar was minimized on page load
     const sidebar = document.getElementById('sidebarMenu');

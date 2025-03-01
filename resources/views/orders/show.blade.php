@@ -7,9 +7,9 @@
     <h1 class="mb-4">Chi tiết đơn hàng</h1>
 
     @if(session('success'))
-    <div class="alert alert-success mt-3">{{ session('success') }}</div>
+      <div class="alert alert-success mt-3">{{ session('success') }}</div>
     @elseif(session('error'))
-    <div class="alert alert-danger mt-3">{{ session('error') }}</div>
+      <div class="alert alert-danger mt-3">{{ session('error') }}</div>
     @endif
 
     <div class="card shadow-sm w-100">
@@ -56,7 +56,7 @@
             <ul class="list-group">
                 @foreach($order->orderInfo->products as $product)
                     <li class="list-group-item">
-                        {{ $product['name'] }} - {{ number_format($product['price'], 0) . ' VNĐ' }} x {{ $product['quantity'] }}
+                        {{ $product['name'] }} - {{ $product['color'] }} - {{ number_format($product['price'], 0) . ' VNĐ' }} x {{ $product['quantity'] }}
                     </li>
                 @endforeach
             </ul>
@@ -65,6 +65,14 @@
                 <form action="{{ route('orders.confirm', $order->id) }}" method="POST" id="confirm-order-form">
                     @csrf
                     <button type="button" class="btn btn-success mt-4" onclick="confirmOrder()">Xác nhận đơn hàng</button>
+                </form>
+            @endif
+
+            <!-- Hiển thị nút Hủy đơn hàng nếu trạng thái không phải Đang giao hàng hoặc Đã giao hàng -->
+            @if(!in_array($order->orderInfo->status, ['Đang giao hàng', 'Đã giao hàng', 'Đã hủy']))
+                <form action="{{ route('orders.cancel', $order->id) }}" method="POST" id="cancel-order-form">
+                    @csrf
+                    <button type="button" class="btn btn-danger mt-4" onclick="cancelOrder()">Hủy đơn hàng</button>
                 </form>
             @endif
 
@@ -79,8 +87,14 @@
   // Hàm xử lý yêu cầu xác nhận đơn hàng
   function confirmOrder() {
     if (confirm('Bạn chắc chắn muốn xác nhận đơn hàng này?')) {
-      // Nếu người dùng nhấn OK, gửi yêu cầu POST để xác nhận đơn hàng
       document.getElementById('confirm-order-form').submit();
+    }
+  }
+
+  // Hàm xử lý yêu cầu hủy đơn hàng
+  function cancelOrder() {
+    if (confirm('Bạn chắc chắn muốn hủy đơn hàng này?')) {
+      document.getElementById('cancel-order-form').submit();
     }
   }
 </script>

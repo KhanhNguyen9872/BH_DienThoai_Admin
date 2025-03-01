@@ -36,9 +36,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-    Route::get('/products/create', [ProductController::class, 'create']);
+    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+    Route::get('/vouchers/create', [VoucherController::class, 'create'])->name('vouchers.create');
+    Route::get('/vouchers/{id}', [VoucherController::class, 'edit'])->name('vouchers.edit');
     Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
 
     Route::group(['prefix' => '/api'], function () {
         Route::get('/colors', [ColorController::class, 'getAllColors'])->name('colors');
@@ -54,8 +58,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/orders', [OrderController::class, 'store']);
         Route::delete('/orders/{id}', [OrderController::class, 'delete'])->name('orders.delete');
         Route::post('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::post('orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
         Route::post('/get-models', [SettingsController::class, 'getModels']);
         Route::post('/test-gemini', [SettingsController::class, 'testAPIGemini']);
+
+        Route::post('/vouchers', [VoucherController::class, 'store'])->name('vouchers.store');
+        Route::put('/vouchers/{id}', [VoucherController::class, 'update'])->name('vouchers.update');
+        Route::delete('/vouchers/{id}', [VoucherController::class, 'delete'])->name('vouchers.delete');
+
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
     });
 });
