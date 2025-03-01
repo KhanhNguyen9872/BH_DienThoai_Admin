@@ -119,7 +119,7 @@ class SettingsController extends Controller
     return redirect()->route('settings')->with('success', 'Cài đặt đã được cập nhật!');
 }
 
-public function checkConnection(Request $request)
+public function getModels(Request $request)
 {
     // Get the URL from the request body
     $baseUrl = $request->input('url');
@@ -148,5 +148,56 @@ public function checkConnection(Request $request)
     }
 }
 
+public function testAPIGemini(Request $request)
+    {
+        // Retrieve the API key from the request body.
+        $apiKey = $request->input('api_key');
+        if (!$apiKey) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'API key is required.'
+            ], 400);
+        }
+        
+        // Construct the Gemini API test URL.
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" . urlencode($apiKey);
+        
+        // Prepare the test payload.
+        $payload = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => 'Hello World!']
+                    ]
+                ]
+            ]
+        ];
+        
+        try {
+            // Send a POST request to the Gemini API.
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json'
+            ])->timeout(5)->post($url, $payload);
+            
+            // Decode the response JSON.
+            $data = json_decode($response->body(), true);
+            
+            // Check for a valid candidate text in the response.
+            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                return response()->json([
+                    'success' => true
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
 
 }

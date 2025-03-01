@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/orders/{id}', [OrderController::class, 'delete'])->name('orders.delete');
         Route::post('/order/confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
 
-        Route::post('/get-models', [SettingsController::class, 'checkConnection']);
+        Route::post('/get-models', [SettingsController::class, 'getModels']);
+        Route::post('/test-gemini', [SettingsController::class, 'testAPIGemini']);
     });
 });

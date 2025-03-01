@@ -123,8 +123,13 @@
 
           <div class="mb-3">
             <label for="geminiApiKey" class="form-label">Gemini API Key</label>
-            <input type="text" class="form-control" id="geminiApiKey" name="gemini_api_key"
-                   value="{{ old('gemini_api_key', $settings['GEMINI_API_KEY'] ?? '') }}" placeholder="Nhập Gemini API Key">
+            <div class="input-group">
+              <input type="text" class="form-control" id="geminiApiKey" name="gemini_api_key"
+                     value="{{ old('gemini_api_key', $settings['GEMINI_API_KEY'] ?? '') }}" placeholder="Nhập Gemini API Key">
+              <button type="button" class="btn btn-outline-secondary" id="btnTestAPI">Test API</button>
+              <!-- Span to display the test API status icon -->
+              <span class="input-group-text" id="testAPIStatus" style="display: none; background: transparent; border: none;"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -139,10 +144,12 @@
 @endsection
 
 @section('scripts')
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     // Global variable to hold the fetched models
     let modelsData = [];
 
+    // Event listener for the "Kết nối" button on Local Chatbot URL
     document.getElementById('btnConnect').addEventListener('click', async function() {
       const urlInput = document.getElementById('localChatbotURL');
       const connectStatus = document.getElementById('connectStatus');
@@ -169,7 +176,6 @@
         if (response.data.success) {
           connectStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
           // Extract models from the response
-          // Response structure: { success: true, data: { data: [ ... ], object: "list" } }
           let allModels = [];
           if (response.data.data && response.data.data.data) {
             allModels = response.data.data.data;
@@ -203,6 +209,39 @@
         connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
         connectStatus.style.display = 'flex';
         console.error('Error:', error);
+      }
+    });
+
+    // Event listener for the "Test API" button for Gemini API.
+    // This now calls the Laravel endpoint /api/test-gemini.
+    document.getElementById('btnTestAPI').addEventListener('click', async function() {
+      const geminiKeyInput = document.getElementById('geminiApiKey');
+      const testAPIStatus = document.getElementById('testAPIStatus');
+      const apiKey = geminiKeyInput.value.trim();
+      
+      if (!apiKey) {
+        testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        testAPIStatus.style.display = 'flex';
+        return;
+      }
+      
+      try {
+        const response = await axios.post('/api/test-gemini', { api_key: apiKey }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.data.success) {
+          testAPIStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+        } else {
+          testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        }
+        testAPIStatus.style.display = 'flex';
+      } catch (error) {
+        testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
+        testAPIStatus.style.display = 'flex';
+        console.error('Gemini API test error:', error);
       }
     });
   </script>
