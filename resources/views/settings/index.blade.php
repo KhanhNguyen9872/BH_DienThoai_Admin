@@ -26,44 +26,6 @@
       @csrf
       @method('PUT')
 
-      <!-- Logo / Avatars Card -->
-      <div class="card mb-4">
-        <div class="card-header">
-          <span class="fw-bold">IMAGE</span>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <!-- Bot Avatar Section -->
-            <div class="col-6 mb-3">
-              <label for="botAvatar" class="form-label">Bot Avatar</label>
-              <div class="d-flex align-items-center">
-                <img 
-                  id="botAvatarPreview" 
-                  src="{{ old('bot_avatar', '/storage/' . $settings['CHATBOT_AVATAR'] ?? asset('storage/images/default_bot_avatar.png')) }}"
-                  alt="Bot Avatar Preview" 
-                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
-                >
-                <input type="file" class="form-control" id="botAvatar" name="bot_avatar">
-              </div>
-            </div>
-
-            <!-- User Avatar Section -->
-            <div class="col-6 mb-3">
-              <label for="userAvatar" class="form-label">User Avatar</label>
-              <div class="d-flex align-items-center">
-                <img 
-                  id="userAvatarPreview" 
-                  src="{{ old('user_avatar', '/storage/' . $settings['CHATBOT_USER_AVATAR'] ?? asset('storage/images/default_user_avatar.png')) }}"
-                  alt="User Avatar Preview" 
-                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
-                >
-                <input type="file" class="form-control" id="userAvatar" name="user_avatar">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Tính năng TELEGRAM BOT -->
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -172,6 +134,36 @@
               <span class="input-group-text" id="testAPIStatus" style="background: transparent; border: none;">
                 <i class="bi bi-question-circle-fill text-secondary"></i>
               </span>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Bot Avatar Section -->
+            <div class="col-6 mb-3">
+              <label for="botAvatar" class="form-label">Bot Avatar</label>
+              <div class="d-flex align-items-center">
+                <img 
+                  id="botAvatarPreview" 
+                  src="{{ old('bot_avatar', '/storage/' . $settings['CHATBOT_AVATAR'] ?? asset('storage/images/default_bot_avatar.png')) }}"
+                  alt="Bot Avatar Preview" 
+                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
+                >
+                <input type="file" class="form-control" id="botAvatar" name="bot_avatar">
+              </div>
+            </div>
+
+            <!-- User Avatar Section -->
+            <div class="col-6 mb-3">
+              <label for="userAvatar" class="form-label">User Avatar</label>
+              <div class="d-flex align-items-center">
+                <img 
+                  id="userAvatarPreview" 
+                  src="{{ old('user_avatar', '/storage/' . $settings['CHATBOT_USER_AVATAR'] ?? asset('storage/images/default_user_avatar.png')) }}"
+                  alt="User Avatar Preview" 
+                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
+                >
+                <input type="file" class="form-control" id="userAvatar" name="user_avatar">
+              </div>
             </div>
           </div>
         </div>
