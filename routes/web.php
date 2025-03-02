@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ColorController;
+use App\Http\Controllers\ChatbotController;
 
 Route::get('/', function () {
     return view('index');
@@ -26,6 +27,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot');
+    Route::get('/chatbot/{id}', [ChatbotController::class, 'show'])->name('chatbot.show');
     Route::get('/products', [ProductController::class, 'index'])->name('products');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::get('/users', [UserController::class, 'index'])->name('users');
@@ -43,6 +46,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::get('/users/{id}', [UserController::class, 'edit'])->name('users.edit');
+    Route::get('/admins/create', [AdminController::class, 'create'])->name('admins.create');
+    Route::get('/admins/{id}', [AdminController::class, 'edit'])->name('admins.edit');
+    Route::get('/accounts/create', [AccountController::class, 'create'])->name('accounts.create');
+    Route::get('/accounts/{id}', [AccountController::class, 'edit'])->name('accounts.edit');
 
     Route::group(['prefix' => '/api'], function () {
         Route::get('/colors', [ColorController::class, 'getAllColors'])->name('colors');
@@ -70,5 +77,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}', [UserController::class, 'delete'])->name('users.delete');
+
+        Route::post('/admins', [AdminController::class, 'store'])->name('admins.store');
+        Route::put('/admins/{id}', [AdminController::class, 'update'])->name('admins.update');
+        Route::delete('/admins/{id}', [AdminController::class, 'delete'])->name('admins.delete');
+
+        Route::post('/accounts', [AccountController::class, 'store'])->name('accounts.store');
+        Route::put('/accounts/{id}', [AccountController::class, 'update'])->name('accounts.update');
+        Route::delete('/accounts/{id}', [AccountController::class, 'delete'])->name('accounts.delete');
+
+        Route::delete('/chatbot/{id}', [ChatbotController::class, 'clear'])->name('chatbot.clear');
     });
 });

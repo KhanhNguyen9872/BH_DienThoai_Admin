@@ -11,11 +11,9 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        // Retrieve the 50 most recent notifications ordered by the 'time' column
         $notifications = DB::table('notifications')
-            ->orderBy('time', 'desc') // Order notifications by time in descending order
-            ->limit(50) // Limit the number of results to 50
-            ->get();
+    ->orderBy('time', 'desc')
+    ->paginate(50);
 
         return view('notifications.index', compact('notifications'));
     }

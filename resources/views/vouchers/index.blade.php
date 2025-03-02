@@ -63,6 +63,34 @@
 
   <!-- Liên kết phân trang -->
   <div class="d-flex justify-content-center mt-3">
+    <nav>
+        <ul class="pagination">
+            <!-- Liên kết Trang trước -->
+            @if ($vouchers->onFirstPage())
+                <li class="page-item disabled"><span class="page-link">Trang trước</span></li>
+            @else
+                <li class="page-item"><a class="page-link" href="{{ $vouchers->previousPageUrl() }}" rel="prev">Trang trước</a></li>
+            @endif
+
+            <!-- Các số trang -->
+            @foreach ($vouchers->getUrlRange(1, $vouchers->lastPage()) as $page => $url)
+                <li class="page-item {{ ($vouchers->currentPage() == $page) ? 'active' : '' }}">
+                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                </li>
+            @endforeach
+
+            <!-- Liên kết Trang tiếp theo -->
+            @if ($vouchers->hasMorePages())
+                <li class="page-item"><a class="page-link" href="{{ $vouchers->nextPageUrl() }}" rel="next">Trang sau</a></li>
+            @else
+                <li class="page-item disabled"><span class="page-link">Trang sau</span></li>
+            @endif
+        </ul>
+    </nav>
+  </div>
+
+  <!-- Liên kết phân trang -->
+  <div class="d-flex justify-content-center mt-3">
     {{ $vouchers->links() }}
   </div>
 @endsection

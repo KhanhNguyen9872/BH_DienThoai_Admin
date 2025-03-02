@@ -7,7 +7,7 @@
               aria-controls="sidebarMenu" aria-expanded="false" aria-label="Chuyển hướng điều hướng">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand fw-bold text-uppercase" href="/dashboard">Quản trị PhoneStore</a>
+      <a class="navbar-brand fw-bold text-uppercase" href="/dashboard">Admin PhoneStore</a>
     </div>
 
     <!-- Trung tâm: Thanh tìm kiếm (hiển thị trên màn hình md+) -->

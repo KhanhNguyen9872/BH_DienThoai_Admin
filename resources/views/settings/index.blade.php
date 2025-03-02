@@ -7,7 +7,7 @@
   <div style="width: 100%; height: 94vh; overflow-y: auto; padding: 5px;">
     <h2>Cài đặt</h2>
     <p class="text-muted">Tùy chỉnh các cài đặt tại đây.</p>
-    
+
     @if(session('success'))
       <div class="alert alert-success">
         {{ session('success') }}
@@ -21,10 +21,49 @@
       </div>
     @endif
 
-    <form action="{{ route('settings.update') }}" method="POST">
+    <!-- Ensure enctype="multipart/form-data" to handle file uploads -->
+    <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data">
       @csrf
       @method('PUT')
-      
+
+      <!-- Logo / Avatars Card -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <span class="fw-bold">IMAGE</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Bot Avatar Section -->
+            <div class="col-6 mb-3">
+              <label for="botAvatar" class="form-label">Bot Avatar</label>
+              <div class="d-flex align-items-center">
+                <img 
+                  id="botAvatarPreview" 
+                  src="{{ old('bot_avatar', '/storage/' . $settings['CHATBOT_AVATAR'] ?? asset('storage/images/default_bot_avatar.png')) }}"
+                  alt="Bot Avatar Preview" 
+                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
+                >
+                <input type="file" class="form-control" id="botAvatar" name="bot_avatar">
+              </div>
+            </div>
+
+            <!-- User Avatar Section -->
+            <div class="col-6 mb-3">
+              <label for="userAvatar" class="form-label">User Avatar</label>
+              <div class="d-flex align-items-center">
+                <img 
+                  id="userAvatarPreview" 
+                  src="{{ old('user_avatar', '/storage/' . $settings['CHATBOT_USER_AVATAR'] ?? asset('storage/images/default_user_avatar.png')) }}"
+                  alt="User Avatar Preview" 
+                  style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border: 1px solid #ccc;"
+                >
+                <input type="file" class="form-control" id="userAvatar" name="user_avatar">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tính năng TELEGRAM BOT -->
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -53,7 +92,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Tính năng Web Client (Chuyển đổi bảo trì) -->
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -142,7 +181,7 @@
       <div class="d-grid">
         <button type="submit" class="btn btn-primary">Lưu</button>
       </div>
-      
+
     </form>
   </div>
 @endsection
@@ -157,7 +196,7 @@
       const urlInput = document.getElementById('localChatbotURL');
       const connectStatus = document.getElementById('connectStatus');
       const url = urlInput.value.trim();
-      
+
       // Clear previously fetched models and dropdown items
       modelsData = [];
       document.getElementById('modelDropdown').innerHTML = '';
@@ -166,7 +205,7 @@
         connectStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
         return;
       }
-      
+
       try {
         // Call the proxy endpoint with the URL in the request body.
         const response = await axios.post('/api/get-models', { url: url }, {
@@ -174,12 +213,12 @@
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (response.data.success) {
           connectStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
           // Now response.data.data is an array of model IDs.
           modelsData = response.data.data;
-          
+
           // Populate the dropdown menu with model IDs
           const modelDropdown = document.getElementById('modelDropdown');
           modelDropdown.innerHTML = '';
@@ -212,19 +251,19 @@
       const geminiKeyInput = document.getElementById('geminiApiKey');
       const testAPIStatus = document.getElementById('testAPIStatus');
       const apiKey = geminiKeyInput.value.trim();
-      
+
       if (!apiKey) {
         testAPIStatus.innerHTML = '<i class="bi bi-x-circle-fill text-danger"></i>';
         return;
       }
-      
+
       try {
         const response = await axios.post('/api/test-gemini', { api_key: apiKey }, {
           headers: {
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (response.data.success) {
           testAPIStatus.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
         } else {
@@ -235,5 +274,32 @@
         console.error('Gemini API test error:', error);
       }
     });
+
+    // Preview function for avatars
+    function previewImage(input, previewId) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById(previewId).setAttribute('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Bot avatar preview
+    const botAvatarInput = document.getElementById('botAvatar');
+    if (botAvatarInput) {
+      botAvatarInput.addEventListener('change', function() {
+        previewImage(this, 'botAvatarPreview');
+      });
+    }
+
+    // User avatar preview
+    const userAvatarInput = document.getElementById('userAvatar');
+    if (userAvatarInput) {
+      userAvatarInput.addEventListener('change', function() {
+        previewImage(this, 'userAvatarPreview');
+      });
+    }
   </script>
 @endsection

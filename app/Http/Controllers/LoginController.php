@@ -45,7 +45,7 @@ class LoginController extends Controller
 
         // If authentication fails, redirect back with an error message
         return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
+            'username' => 'Thông tin xác thực được cung cấp không khớp với hồ sơ của chúng tôi.',
         ])->withInput();
     }
 }

@@ -10,7 +10,13 @@ class Admin extends Authenticatable
     protected $table = 'admin';
 
     // Define fillable properties if needed
-    protected $fillable = ['username', 'password', 'full_name', /* other columns */];
+    protected $fillable = [
+        'username',
+        'full_name',
+        'email',
+        'img',
+        'password',
+    ];
 
     // Disable "remember me" functionality if not needed
     public function getRememberToken()

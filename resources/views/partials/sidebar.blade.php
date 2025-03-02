@@ -51,6 +51,13 @@
         </a>
       </li>
       <li class="nav-item">
+  <a class="nav-link text-white @if(request()->routeIs('chatbot*')) active @endif" href="{{ route('chatbot') }}">
+    <i class="bi-chat-dots me-2"></i>
+    <span class="link-text">Lịch sử chatbot</span>
+  </a>
+</li>
+
+      <li class="nav-item">
         <a class="nav-link text-white @if(request()->routeIs('settings*')) active @endif" href="{{ route('settings') }}">
           <i class="bi-gear me-2"></i>
           <span class="link-text">Cài đặt</span>

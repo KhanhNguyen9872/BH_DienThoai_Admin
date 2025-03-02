@@ -1,10 +1,10 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Quản lý Người Dùng')
+@section('title', 'Lịch sử Chatbot')
 
 @section('content')
-  <h2>Quản lý Người Dùng</h2>
-  <p class="text-muted">Quản lý thông tin người dùng tại đây. Bạn có thể tạo, chỉnh sửa, hoặc xóa người dùng.</p>
+  <h2>Lịch sử Chatbot</h2>
+  <p class="text-muted">Hiển thị lịch sử các cuộc trò chuyện của chatbot.</p>
 
   @if(session('success'))
     <div class="alert alert-success">
@@ -18,8 +18,7 @@
     </div>
   @endif
 
-  <!-- Nút Thêm Người Dùng Mới -->
-  <a href="{{ route('users.create') }}" class="btn btn-success mb-3">Thêm Người Dùng Mới</a>
+  <!-- Removed the Add, Edit and Delete buttons -->
 
   <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
@@ -40,25 +39,20 @@
             <td>{{ $user->last_name }}</td>
             <td>{{ $user->email }}</td>
             <td>
-              <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-primary">Chỉnh sửa</a>
-              <form action="{{ route('users.delete', $user->id) }}" method="POST" class="d-inline-block" onsubmit="return confirmDelete()">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-              </form>
+              <a href="{{ route('chatbot.show', $user->id) }}" class="btn btn-sm btn-info">Xem</a>
             </td>
           </tr>
         @empty
           <tr>
-            <td colspan="5" class="text-center">Không có người dùng nào.</td>
+            <td colspan="5" class="text-center">Không có dữ liệu.</td>
           </tr>
         @endforelse
       </tbody>
     </table>
   </div>
 
-   <!-- Liên kết phân trang -->
-   <div class="d-flex justify-content-center mt-3">
+  <!-- Liên kết phân trang -->
+  <div class="d-flex justify-content-center mt-3">
     <nav>
         <ul class="pagination">
             <!-- Liên kết Trang trước -->
@@ -84,18 +78,8 @@
         </ul>
     </nav>
   </div>
-
-  <!-- Liên kết phân trang -->
-  <div class="d-flex justify-content-center mt-3">
-    {{ $users->links() }}
-  </div>
 @endsection
 
 @section('scripts')
-<script>
-  // Hàm xác nhận khi xóa người dùng
-  function confirmDelete() {
-    return confirm('Bạn chắc chắn muốn xóa người dùng này?');
-  }
-</script>
+<!-- No delete confirmation needed as delete button is removed -->
 @endsection

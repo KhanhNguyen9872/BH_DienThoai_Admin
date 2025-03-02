@@ -8,6 +8,6 @@ class AnalyticsController extends Controller
 {
     public function index()
     {
-        return view('analytics');
+        return view('analytics.index');
     }
 }

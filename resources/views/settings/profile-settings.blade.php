@@ -31,7 +31,7 @@
     <div class="row mb-4">
       <!-- Cột Ảnh Hồ sơ -->
       <div class="col-md-4 text-center">
-        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('storage/images/default-profile.png') }}" 
+        <img id="preview" src="{{ $image ? asset('storage/' . $image) : asset('storage/images/default-profile.png') }}" 
              alt="Ảnh hồ sơ" class="img-thumbnail mb-3" style="max-width:150px;">
         <div class="mb-3">
           <label for="profile_picture" class="form-label">Đổi Ảnh Hồ sơ</label>
@@ -44,13 +44,19 @@
         <div class="mb-3">
           <label for="name" class="form-label">Họ và Tên</label>
           <input type="text" class="form-control" id="name" name="name" 
-                 value="{{ old('name', auth()->user()->name) }}" required>
+                 value="{{ old('name', $full_name) }}" required>
         </div>
 
         <div class="mb-3">
           <label for="email" class="form-label">Địa chỉ Email</label>
           <input type="email" class="form-control" id="email" name="email" 
-                 value="{{ old('email', auth()->user()->email) }}" required>
+                 value="{{ old('email', $email) }}" required>
+        </div>
+
+        <!-- Current (old) password field -->
+        <div class="mb-3">
+          <label for="old_password" class="form-label">Mật khẩu hiện tại</label>
+          <input type="password" class="form-control" id="old_password" name="old_password">
         </div>
 
         <div class="mb-3">
@@ -68,4 +74,23 @@
     </div>
   </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Store the original image source for resetting if needed.
+    const previewImg = document.getElementById('preview');
+    const originalImageSrc = previewImg.src;
+
+    document.getElementById('profile_picture').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (file) {
+        previewImg.src = URL.createObjectURL(file);
+      } else {
+        previewImg.src = originalImageSrc;
+      }
+    });
+  });
+</script>
 @endsection

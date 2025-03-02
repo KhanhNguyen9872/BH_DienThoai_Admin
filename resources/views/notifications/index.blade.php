@@ -29,7 +29,6 @@
     <table class="table table-striped table-hover align-middle">
       <thead class="table-dark">
         <tr>
-          <th scope="col">ID</th>
           <th scope="col">Nội dung</th>
           <th scope="col">Thời gian</th>
           <th scope="col">Hành động</th>
@@ -43,7 +42,6 @@
               style="cursor: pointer;"
             @endif
           >
-            <td>{{ $notification->id }}</td>
             <td>
               <!-- If a URL is provided, show notification text normally, but row is clickable -->
               @if($notification->url)
@@ -73,6 +71,34 @@
         @endforelse
       </tbody>
     </table>
+  </div>
+
+   <!-- Liên kết phân trang -->
+   <div class="d-flex justify-content-center mt-3">
+    <nav>
+        <ul class="pagination">
+            <!-- Liên kết Trang trước -->
+            @if ($notifications->onFirstPage())
+                <li class="page-item disabled"><span class="page-link">Trang trước</span></li>
+            @else
+                <li class="page-item"><a class="page-link" href="{{ $notifications->previousPageUrl() }}" rel="prev">Trang trước</a></li>
+            @endif
+
+            <!-- Các số trang -->
+            @foreach ($notifications->getUrlRange(1, $notifications->lastPage()) as $page => $url)
+                <li class="page-item {{ ($notifications->currentPage() == $page) ? 'active' : '' }}">
+                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                </li>
+            @endforeach
+
+            <!-- Liên kết Trang tiếp theo -->
+            @if ($notifications->hasMorePages())
+                <li class="page-item"><a class="page-link" href="{{ $notifications->nextPageUrl() }}" rel="next">Trang sau</a></li>
+            @else
+                <li class="page-item disabled"><span class="page-link">Trang sau</span></li>
+            @endif
+        </ul>
+    </nav>
   </div>
 @endsection
 
