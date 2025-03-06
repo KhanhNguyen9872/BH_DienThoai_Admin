@@ -153,7 +153,7 @@
                       <input type="number" name="color[${colorIndex}][quantity]" class="form-control" value="0">
                     </div>
                     <div>
-                      <label class="form-label">Giảm giá tiền</label>
+                      <label class="form-label">Giá khuyến mãi (Nhập 0 nếu không có giảm giá)</label>
                       <input type="number" name="color[${colorIndex}][moneyDiscount]" class="form-control" value="0">
                     </div>
                   </div>
