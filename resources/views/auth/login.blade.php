@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng nhập Quản trị - PhoneStore</title>
-  <!-- Bootstrap CSS -->
-  <link href="{{ asset('storage/css/bootstrap.min.css') }}" rel="stylesheet" />
-  <!-- Bootstrap Icons -->
-  <link href="{{ asset('storage/css/bootstrap-icons.css') }}" rel="stylesheet" />
   <style>
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -63,7 +59,5 @@
     </div>
   </div>
   
-  <!-- Bootstrap Bundle JS -->
-  <script src="{{ asset('storage/js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
