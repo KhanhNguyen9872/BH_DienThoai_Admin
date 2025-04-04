@@ -222,6 +222,7 @@
       const newSelectElement = document.querySelector(`select[name="color[${colorIndex}][name]"]`);
       populateColorSelect(newSelectElement);
       
+      attachDeleteHandlers();
       colorIndex++;
     });
 
